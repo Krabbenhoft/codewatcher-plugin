@@ -54,6 +54,7 @@ async function onCheckServerConnection(){
     .then(response => {
         axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.access_token}`
         vscode.window.showInformationMessage("Connected to server");
+        console.log("Access token " + response.data.access_token);
     })
     .catch(error => {
         vscode.window.showErrorMessage("Failed to connect: " + error.message);
