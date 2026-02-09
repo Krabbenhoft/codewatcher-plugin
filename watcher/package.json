@@ -27,7 +27,28 @@
         "command": "watcher.myCopyCommand",
         "title": "Custom Copy"
       }
-    ],
+    ],    
+    "configuration": {
+        "title": "Eyepatch Extension Settings",
+        "properties": {
+            "watcher.enrollment": {
+                "type": "string",
+                "default": "",
+                "description": "Enrollment (eg. 2026a2e4238c)"
+            },
+            "watcher.password": {
+                "type": "string",
+                "default": "",
+                "description": "Password (eg. eyepatch123)"
+            },
+            "watcher.ipaddress": {
+                "type": "string",
+                "default": "",
+                "description": "Remote Host Address (eg. 127.0.0.1:8083, but not 127.0.0.1 or https://127.0.0.1:8083)"
+            }
+        }
+
+      },
     "keybindings": [
       {
         "command": "watcher.myPasteCommand",

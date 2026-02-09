@@ -40,22 +40,17 @@ function activate(context) {
 }
 
 //------------------ROUTES-------------------//
-// async function onCheckServerConnection(){
-//     await axios.post('http://0.0.0.0:8083/ping')
-// 	.then(response => {
-// 		axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.access_token}`
-//         vscode.window.showInformationMessage(response.data.data);
-// 	})
-// 	.catch(error => {
-// 		if (error.response.data.detail)vscode.window.showErrorMessage(error.response.data.detail)
-// 	})
-// }
 async function onCheckServerConnection(){
     const loginData = new URLSearchParams();
-    loginData.append('username', "2026a2e4238c"); //vscode.workspace.getConfiguration('watcher').get('enrollment')
-    loginData.append('password', "string"); //vscode.workspace.getConfiguration('watcher').get('password')
+    const inputConfig = vscode.workspace.getConfiguration('watcher');
+    const userEnrollment = inputConfig.get('enrollment', '');
+    const userPassword = inputConfig.get('password', '');
+    const userIP = inputConfig.get('ipaddress', '');
+    console.log("Enrollment %s, Passoword %s, IP %s" + userEnrollment, userPassword, userIP);
+    loginData.append('username', userEnrollment);
+    loginData.append('password', userPassword);
     
-    await axios.post('http://127.0.0.1:8083/login', loginData, configForm)
+    await axios.post(`http://${userIP}/login`, loginData, configForm)
     .then(response => {
         axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.access_token}`
         vscode.window.showInformationMessage("Connected to server");
@@ -65,59 +60,23 @@ async function onCheckServerConnection(){
     });
 }
 
-async function onLogin() {
-
-	const username = await vscode.window.showInputBox({
-	  prompt: 'Enter your enrollment',
-	  ignoreFocusOut: true
-	})
-
-	if (!username) {
-	  vscode.window.showWarningMessage('Login canceled (no username provided).')
-	  return
-	}
-  
-	const password = await vscode.window.showInputBox({
-	  prompt: 'Enter your password',
-	  password: true,
-	  ignoreFocusOut: true
-	})
-	if (!password) {
-	  vscode.window.showWarningMessage('Login canceled (no password provided).')
-	  return
-	}
-
-	const params = {
-		grant_type: 'password',
-		username: username,
-		password: password,
-		scope: '',
-		client_id: 'string',
-		client_secret: 'string'
-	}
-  
-	await axios.post('http://0.0.0.0:8083/login', params, configForm)
-	.then(response => {
-		axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.access_token}`
-        vscode.window.showInformationMessage("Authentication successful!");
-	})
-	.catch(error => {
-		if (error.response.data.detail)vscode.window.showErrorMessage(error.response.data.detail)
-	})
-}
-
 async function onWriteLogs(){
+    const inputConfig = vscode.workspace.getConfiguration('watcher');
+    const userIP = inputConfig.get('ipaddress', '');
+    console.log("IP " + userIP);
+
 	if(unsavedLogs){
 		const editor=vscode.window.activeTextEditor
-		await axios.post('http://0.0.0.0:8083/log', { 
+		await axios.post(`http://${userIP}/log`, { 
 			"documentname": getFileName(docRelativeFilePath),
 			"documentpath": docRelativeFilePath,
 			"language":docLangId,
 			changes,
-			"linecount": editor.document.lineCount
+			"linecount": 999
 		}, configJson)
 		.then(response => {
-			vscode.window.showInformationMessage(response.data.data);
+			vscode.window.showInformationMessage("Response data: " + response.data.data);
+            console.log("response.data.data is %s", response.data.data);
 		})
 		.catch(error => {
 			if (error.response.data.detail)vscode.window.showErrorMessage(error.response.data.detail)
@@ -339,63 +298,3 @@ module.exports = {
 	activate,
 	deactivate
 }
-//I am making a bunch of changes to this file.anges to this file.anges to this file.anges to this file.anges to this file.this file.anges to this file.anges tothis file.anges to this file.anges tothis file.anges to this file.anges to
-
-
-//This is a big change in here!nge in here!nge in here!
-//This is a big change in here!nge in here!nge in here!
-//This is a big change in here!nge in here!nge in here!
-//This is a big change in here!nge in here!nge in here!
-//This is a big change in here!nge in here!nge in here!
-//This is a big change in here!nge in here!nge in here!e!nge in here!nge in here!Typeing!
-
-
-//Does this still make a change? 
-
-
-
-//This is a big change in here!nge in here!nge in here!
-//This is a big change in here!nge in here!nge in here!
-//This is a big change in here!nge in here!nge in here!
-//This is a big change in here!nge in here!nge in here!
-//This is a big change in here!nge in here!nge in here!
-//This is a big change in here!nge in here!nge in here!e!nge in here!nge in here!Typeing!
-
-
-//Does this still make a change? 
-
-
-
-//This is a big change in here!nge in here!nge in here!
-//This is a big change in here!nge in here!nge in here!
-//This is a big change in here!nge in here!nge in here!
-//This is a big change in here!nge in here!nge in here!
-//This is a big change in here!nge in here!nge in here!
-//This is a big change in here!nge in here!nge in here!e!nge in here!nge in here!Typeing!
-
-
-//Does this still make a change? 
-
-
-
-//This is a big change in here!nge in here!nge in here!
-//This is a big change in here!nge in here!nge in here!
-//This is a big change in here!nge in here!nge in here!
-//This is a big change in here!nge in here!nge in here!
-//This is a big change in here!nge in here!nge in here!
-//This is a big change in here!nge in here!nge in here!e!nge in here!nge in here!Typeing!
-
-
-//Does this still make a change? 
-
-
-
-//This is a big change in here!nge in here!nge in here!
-//This is a big change in here!nge in here!nge in here!
-//This is a big change in here!nge in here!nge in here!
-//This is a big change in here!nge in here!nge in here!
-//This is a big change in here!nge in here!nge in here!
-//This is a big change in here!nge in here!nge in here!e!nge in here!nge in here!Typeing!
-
-
-//Does this still make a change? this is a big changednge? this is a big changednge? this is a big changednge? this is a big changednge? this is a big changed
