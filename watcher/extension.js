@@ -72,7 +72,7 @@ async function onWriteLogs(){
 			"documentname": getFileName(docRelativeFilePath),
 			"documentpath": docRelativeFilePath,
 			"language":docLangId,
-			changes,
+			changes, //this is the key here
 			"linecount": 999
 		}, configJson)
 		.then(response => {
