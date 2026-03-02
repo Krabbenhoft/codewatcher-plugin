@@ -1,1 +1,2 @@
-docker exec mongodb_container mongosh -u admin -p admin123 --eval "use('llmextension'); db['interaction_logs '].find().pretty()"
+#docker exec mongodb_container mongosh -u admin -p admin123 --eval "use('llmextension'); db['interaction_logs '].find().pretty()"
+docker exec mongodb_container mongosh -u admin -p admin123 --eval "use('llmextension'); db['interaction logs '].find().forEach(doc => {print(EJSON.stringify(doc, null, 2))})"

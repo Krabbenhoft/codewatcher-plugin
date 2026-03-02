@@ -1,0 +1,56 @@
+[
+    {
+    "_id": {
+        "$oid": "69a5a8a04203266e36220787"
+    },
+    "documentname": "watcher/extension",
+    "documentpath": "watcher/extension.js",
+    "language": "javascript",
+    "changes": [
+        {
+        "type": "focus",
+        "time": "2026-03-02T15:11:28.334Z",
+        "text": "",
+        "line": ""
+        }
+    ],
+    "linecount": 999,
+    "user_enrollment": "202610f880b3"
+    },
+    {
+    "_id": {
+        "$oid": "69a5a8a54203266e36220788"
+    },
+    "documentname": "watcher/extension",
+    "documentpath": "watcher/extension.js",
+    "language": "javascript",
+    "changes": [
+        {
+        "type": "unfocus",
+        "time": "2026-03-02T15:11:29.040Z",
+        "text": "",
+        "line": ""
+        }
+    ],
+    "linecount": 999,
+    "user_enrollment": "202610f880b3"
+    },
+    {
+    "_id": {
+        "$oid": "69a5a8a54203266e36220788"
+    },
+    "documentname": "watcher/extension",
+    "documentpath": "watcher/extension.js",
+    "language": "javascript",
+    "changes": [
+        {
+        "type": "focus",
+        "time": "2026-03-02T15:11:40.040Z",
+        "text": "",
+        "line": ""
+        }
+    ],
+    "linecount": 999,
+    "user_enrollment": "202610f880b3"
+    }
+]
