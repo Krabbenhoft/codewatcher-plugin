@@ -1,83 +1,81 @@
 {
-  "name": "watcher",
-  "displayName": "Watcher",
-  "description": "",
-  "version": "0.0.1",
-  "engines": {
-    "vscode": "^1.99.0"
-  },
-  "categories": [
-    "Other"
-  ],
-  "activationEvents": [
-    "onLanguage"
-  ],
-  "main": "./extension.js",
-  "contributes": {
-    "commands": [
-      {
-        "command": "watcher.login",
-        "title": "Login to Extension"
-      },
-      {
-        "command": "watcher.myPasteCommand",
-        "title": "Custom Paste"
-      },
-      {
-        "command": "watcher.myCopyCommand",
-        "title": "Custom Copy"
-      }
-    ],    
-    "configuration": {
-        "title": "Eyepatch Extension Settings",
-        "properties": {
-            "watcher.enrollment": {
-                "type": "string",
-                "default": "",
-                "description": "Enrollment (eg. 2026a2e4238c)"
+    "name": "watcher",
+    "displayName": "Watcher",
+    "description": "",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.99.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "onLanguage"
+    ],
+    "main": "./extension.js",
+    "contributes": {
+        "commands": [
+            {
+                "command": "watcher.login",
+                "title": "Login to Extension"
             },
-            "watcher.password": {
-                "type": "string",
-                "default": "",
-                "description": "Password (eg. eyepatch123)"
+            {
+                "command": "watcher.myPasteCommand",
+                "title": "Custom Paste"
             },
-            "watcher.ipaddress": {
-                "type": "string",
-                "default": "",
-                "description": "Remote Host Address (eg. 127.0.0.1:8083, but not 127.0.0.1 or https://127.0.0.1:8083)"
+            {
+                "command": "watcher.myCopyCommand",
+                "title": "Custom Copy"
             }
-        }
-
-      },
-    "keybindings": [
-      {
-        "command": "watcher.myPasteCommand",
-        "key": "ctrl+v",
-        "mac": "cmd+v",
-        "when": "editorTextFocus"
-      },
-      {
-        "command": "watcher.myCopyCommand",
-        "key": "ctrl+c",
-        "mac": "cmd+c"
-      }
-    ]
-  },
-  "scripts": {
-    "lint": "eslint .",
-    "pretest": "npm run lint",
-    "test": "vscode-test"
-  },
-  "devDependencies": {
-    "@types/axios": "^0.9.36",
-    "@types/mocha": "^10.0.10",
-    "@types/node": "20.x",
-    "@types/vscode": "^1.99.0",
-    "@vscode/test-cli": "^0.0.10",
-    "@vscode/test-electron": "^2.5.2",
-    "eslint": "^9.25.1"
-  },
-  "dependencies": {
-    "axios": "^1.9.0"
-  }
+        ],
+        "configuration": {
+            "title": "Eyepatch Extension Settings",
+            "properties": {
+                "watcher.enrollment": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Enrollment (eg. 2026a2e4238c)"
+                },
+                "watcher.password": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Password (eg. eyepatch123)"
+                },
+                "watcher.ipaddress": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Remote Host Address (eg. 127.0.0.1:8083, but not 127.0.0.1 or https://127.0.0.1:8083)"
+                }
+            }
+        },
+        "keybindings": [
+            {
+                "command": "watcher.myPasteCommand",
+                "key": "ctrl+v",
+                "mac": "cmd+v",
+                "when": "editorTextFocus"
+            },
+            {
+                "command": "watcher.myCopyCommand",
+                "key": "ctrl+c",
+                "mac": "cmd+c"
+            }
+        ]
+    },
+    "scripts": {
+        "lint": "eslint .",
+        "pretest": "npm run lint",
+        "test": "vscode-test",
+        "build": "esbuild src/extension.js --bundle --outfile=extension.js --external:vscode --platform=node"
+    },
+    "devDependencies": {
+        "@types/axios": "^0.9.36",
+        "@types/mocha": "^10.0.10",
+        "@types/node": "20.x",
+        "@types/vscode": "^1.99.0",
+        "@vscode/test-cli": "^0.0.10",
+        "@vscode/test-electron": "^2.5.2",
+        "axios": "^1.13.5",
+        "eslint": "^9.25.1"
+    }
 }

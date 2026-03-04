@@ -7,8 +7,8 @@
 # fi
 
 echo "Removing old extension..."
-rm -R ~/.vscode/extensions/watcher
+rm -R ~/.vscode-oss/extensions/watcher
 echo "Copying new extension..."
-cp -R watcher ~/.vscode/extensions/watcher
+cp -R watcher ~/.vscode-oss/extensions/watcher
 echo "Launching dev window..."
-code --extensionDevelopmentPath=~/.vscode/extensions/watcher
+codium --extensionDevelopmentPath=~/.vscode-oss/extensions/watcher
