@@ -1,3 +1,3 @@
 #!/bin/bash
-docker rm -vf "$(docker ps -aq)"
-docker volume rm "$(docker volume ls -q)"
+podman rm -vf "$(podman ps -aq)"
+podman volume rm "$(podman volume ls -q)"

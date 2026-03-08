@@ -7,6 +7,22 @@ const axios = require('axios');
 const configForm = { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
 const configJson = { headers: { 'Content-Type': 'application/json' } }
 
+// TODO: Make a setting to change.
+// NOTE: This closure setup essentially acts like an object with an anonymous class.
+const { getUrl, setAddr, setPort, setProtocol } = (function () {
+    // Defaults
+    let address = "127.0.0.1"
+    let port = "8083"
+    let protocol = "http"
+
+    return {
+        getUrl: (resource) => [protocol, "://", address, ":", port, "/", resource].join(""),
+        setAddr: (a) => address = a,
+        setPort: (p) => port = p,
+        setProtocol: (p) => protocol = p
+    }
+})()
+
 //document specific variables
 let docAbsoluteFilePath
 let docRelativeFilePath
@@ -21,115 +37,117 @@ let unsavedLogs=false
 let currentSelection=""
 
 function activate(context) {
-	console.log('Congratulations, your extension "watcher" is now active!');
+	  console.log('Congratulations, your extension "watcher" is now active!');
 
-	const login = vscode.commands.registerCommand('watcher.login', async () => { await onLogin() })
+	  const login = vscode.commands.registerCommand('watcher.login', async () => { await onLogin() })
 
     onCheckServerConnection();
-	if(vscode.window.activeTextEditor){ handleNewActiveEditor(vscode.window.activeTextEditor) }
+	  if(vscode.window.activeTextEditor){ handleNewActiveEditor(vscode.window.activeTextEditor) }
 
-	context.subscriptions.push(
-		login,
-		vscode.window.onDidChangeActiveTextEditor(handleNewActiveEditor),
-		vscode.workspace.onDidChangeTextDocument(handleDocumentChange),
-		vscode.window.onDidChangeTextEditorSelection(handleSelectionChange),
-		vscode.window.onDidChangeWindowState(handleFocusChange),
-		vscode.commands.registerCommand('watcher.myPasteCommand',handlePasteAction),
-		vscode.commands.registerCommand('watcher.myCopyCommand',handleCopyAction)
-	)
+	  context.subscriptions.push(
+		    login,
+		    vscode.window.onDidChangeActiveTextEditor(handleNewActiveEditor),
+		    vscode.workspace.onDidChangeTextDocument(handleDocumentChange),
+		    vscode.window.onDidChangeTextEditorSelection(handleSelectionChange),
+		    vscode.window.onDidChangeWindowState(handleFocusChange),
+		    vscode.commands.registerCommand('watcher.myPasteCommand',handlePasteAction),
+		    vscode.commands.registerCommand('watcher.myCopyCommand',handleCopyAction)
+	  )
 }
 
 //------------------ROUTES-------------------//
 async function onCheckServerConnection(){
-    await axios.post('http://10.126.1.248:8083/ping')
-	.then(response => {
-		axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.access_token}`
-        vscode.window.showInformationMessage(response.data.data);
-	})
-	.catch(error => {
-		if (error.response.data.detail)vscode.window.showErrorMessage(error.response.data.detail)
-	})
+    await axios.post(getUrl("/ping"))
+	      .then(response => {
+		        axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.access_token}`
+            vscode.window.showInformationMessage(response.data.data);
+	      })
+	      .catch(error => {
+		        if (error.response.data.detail)
+                vscode.window.showErrorMessage(error.response.data.detail)
+	      })
 }
 async function onLogin() {
 
-	const username = await vscode.window.showInputBox({
-	  prompt: 'Enter your enrollment',
-	  ignoreFocusOut: true
-	})
+	  const username = await vscode.window.showInputBox({
+	      prompt: 'Enter your enrollment',
+	      ignoreFocusOut: true
+	  })
 
-	if (!username) {
-	  vscode.window.showWarningMessage('Login canceled (no username provided).')
-	  return
-	}
-  
-	const password = await vscode.window.showInputBox({
-	  prompt: 'Enter your password',
-	  password: true,
-	  ignoreFocusOut: true
-	})
-	if (!password) {
-	  vscode.window.showWarningMessage('Login canceled (no password provided).')
-	  return
-	}
+	  if (!username) {
+	      vscode.window.showWarningMessage('Login canceled (no username provided).')
+	      return
+	  }
 
-	const params = {
-		grant_type: 'password',
-		username: username,
-		password: password,
-		scope: '',
-		client_id: 'string',
-		client_secret: 'string'
-	}
-  
-	await axios.post('http://10.126.1.248:8083/login', params, configForm)
-	.then(response => {
-		axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.access_token}`
-        vscode.window.showInformationMessage("Authentication successful!");
-	})
-	.catch(error => {
-		if (error.response.data.detail)vscode.window.showErrorMessage(error.response.data.detail)
-	})
+	  const password = await vscode.window.showInputBox({
+	      prompt: 'Enter your password',
+	      password: true,
+	      ignoreFocusOut: true
+	  })
+	  if (!password) {
+	      vscode.window.showWarningMessage('Login canceled (no password provided).')
+	      return
+	  }
+
+	  const params = {
+		    grant_type: 'password',
+		    username: username,
+		    password: password,
+		    scope: '',
+		    client_id: 'string',
+		    client_secret: 'string'
+	  }
+
+	  await axios.post('http://10.126.1.248:8083/login', params, configForm)
+	      .then(response => {
+		        axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.access_token}`
+            vscode.window.showInformationMessage("Authentication successful!");
+	      })
+	      .catch(error => {
+		        if (error.response.data.detail)vscode.window.showErrorMessage(error.response.data.detail)
+	      })
 }
 
 async function onWriteLogs(){
-	if(unsavedLogs){
-		const editor=vscode.window.activeTextEditor
-		await axios.post('http://10.126.1.248:8083/log', { 
-			"documentname": getFileName(docRelativeFilePath),
-			"documentpath": docRelativeFilePath,
-			"language":docLangId,
-			changes,
-			"linecount": editor.document.lineCount
-		}, configJson)
-		.then(response => {
-			vscode.window.showInformationMessage(response.data.data);
-		})
-		.catch(error => {
-			if (error.response.data.detail)vscode.window.showErrorMessage(error.response.data.detail)
-		})
-		changes=[];
+	  if(unsavedLogs){
+		    const editor=vscode.window.activeTextEditor
+		    await axios.post(getUrl('/log'), {
+			      "documentname": getFileName(docRelativeFilePath),
+			      "documentpath": docRelativeFilePath,
+			      "language":docLangId,
+			      changes,
+			      "linecount": editor.document.lineCount
+		    }, configJson)
+		        .then(response => {
+			          vscode.window.showInformationMessage(response.data.data);
+		        })
+		        .catch(error => {
+			          if (error.response.data.detail)
+                    vscode.window.showErrorMessage(error.response.data.detail)
+		        })
+		    changes=[];
         unsavedLogs=false;
-	}
+	  }
 }
 //------------------------------------//
 //-----------------ASYNC HANDLING FUNCTIONS--------------------//
 //ok
 async function handleNewActiveEditor(editor){
-	if(unsavedLogs){
+	  if(unsavedLogs){
         addChangeObject("end", new Date(), "","");
         await onWriteLogs();
     }
 
-	cleanUp();
-	//initialize the document variables
-	if(editor){
+	  cleanUp();
+	  //initialize the document variables
+	  if(editor){
         initializeDocumentVariables(editor.document)
     } else {
         docActive=false
         isTimerRunning=false
     } if(docActive){
-		await runTimer();
-	}
+		    await runTimer();
+	  }
 }
 //ok
 async function runTimer(){
@@ -144,13 +162,13 @@ async function runTimer(){
             await onWriteLogs()
         }
     },5000)
-    
+
 }
 
 //-------------------- SYNC HANDLING FUNCTIONS----------------------
 //ok
 function handleFocusChange(state){
-	if(isTimerRunning){
+	  if(isTimerRunning){
         if(state.focused){
             //can push an object to changes
             addChangeObject("focus",new Date(),"","");
@@ -163,7 +181,7 @@ function handleFocusChange(state){
 }
 //ok
 function handleDocumentChange(event) {
-	if(isTimerRunning && docActive){
+	  if(isTimerRunning && docActive){
         idleTime=0;
         for (const change of event.contentChanges){
             activeLine= vscode.window.activeTextEditor.document.lineAt(change.range.start.line).text;
@@ -182,18 +200,18 @@ function handleDocumentChange(event) {
 }
 //ok
 async function handlePasteAction() {
-	const editor = vscode.window.activeTextEditor;
+	  const editor = vscode.window.activeTextEditor;
   	if (!editor) return
-	// Pega o conteúdo atual antes do paste
-	const beforeText = editor.document.getText();
-	// Executa o paste
-	await vscode.commands.executeCommand('editor.action.clipboardPasteAction');
-	// Aguarda um tick do event loop para garantir que o conteúdo foi colado
-	await new Promise(resolve => setTimeout(resolve, 50));
-	// Pega o conteúdo após o paste
-	const afterText = editor.document.getText();
-	// Calcula o trecho colado
-	const pastedText = extractInsertedPortion(beforeText, afterText); // você precisa implementar essa função
+	  // Pega o conteúdo atual antes do paste
+	  const beforeText = editor.document.getText();
+	  // Executa o paste
+	  await vscode.commands.executeCommand('editor.action.clipboardPasteAction');
+	  // Aguarda um tick do event loop para garantir que o conteúdo foi colado
+	  await new Promise(resolve => setTimeout(resolve, 50));
+	  // Pega o conteúdo após o paste
+	  const afterText = editor.document.getText();
+	  // Calcula o trecho colado
+	  const pastedText = extractInsertedPortion(beforeText, afterText); // você precisa implementar essa função
 
     await addChangeObject("paste",new Date(),pastedText,"");
 }
@@ -218,48 +236,48 @@ function handleSelectionChange(event) {
 function getRelativePath(fileName) {
     // Check if there is a workspace and the file is within the workspace
     if (vscode.workspace.workspaceFolders) {
-      const workspaceFolder = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(fileName));
-  
-      if (workspaceFolder) {
-        // Use asRelativePath to get the relative path
-        const relativePath = vscode.workspace.asRelativePath(fileName, false);
-        return relativePath;
-      }
+        const workspaceFolder = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(fileName));
+        
+        if (workspaceFolder) {
+            // Use asRelativePath to get the relative path
+            const relativePath = vscode.workspace.asRelativePath(fileName, false);
+            return relativePath;
+        }
     }
 }
 
 function isProgrammingLanguageId(input) {
     const programmingLanguageIds = [
-      'javascript',
-      'typescript',
-      'python',
-      'java',
-      'csharp',
-      'html',
+        'javascript',
+        'typescript',
+        'python',
+        'java',
+        'csharp',
+        'html',
     ];
-  
+    
     return programmingLanguageIds.includes(input.toLowerCase());
 }
 
 function extractInsertedPortion(before, after) {
-  let start = 0;
+    let start = 0;
 
-  // Encontra onde começam a diferir
-  while (start < before.length && start < after.length && before[start] === after[start]) {
-    start++;
-  }
+    // Encontra onde começam a diferir
+    while (start < before.length && start < after.length && before[start] === after[start]) {
+        start++;
+    }
 
-  // Encontra o final comum (de trás para frente)
-  let endBefore = before.length - 1;
-  let endAfter = after.length - 1;
+    // Encontra o final comum (de trás para frente)
+    let endBefore = before.length - 1;
+    let endAfter = after.length - 1;
 
-  while (endBefore >= start && endAfter >= start && before[endBefore] === after[endAfter]) {
-    endBefore--;
-    endAfter--;
-  }
+    while (endBefore >= start && endAfter >= start && before[endBefore] === after[endAfter]) {
+        endBefore--;
+        endAfter--;
+    }
 
-  // Retorna a parte colada
-  return after.slice(start, endAfter + 1);
+    // Retorna a parte colada
+    return after.slice(start, endAfter + 1);
 }
 
 function addChangeObject(type,time,text,line){
@@ -288,12 +306,12 @@ function getFileName(fileName){
 }
 
 function initializeDocumentVariables(document){
-	cleanUp();
+	  cleanUp();
     docAbsoluteFilePath=document.fileName;
     docRelativeFilePath=getRelativePath(docAbsoluteFilePath);
     //isDocUntitled=document.isUntitled;
     docLangId=document.languageId;
-    docText=document.getText(); 
+    docText=document.getText();
     docActive=isProgrammingLanguageId(docLangId);
     activeLine=document.lineAt(vscode.window.activeTextEditor.selection.active.line).text;
 }
@@ -318,6 +336,6 @@ function cleanUp(){
 function deactivate() {}
 
 module.exports = {
-	activate,
-	deactivate
+	  activate,
+	  deactivate
 }
