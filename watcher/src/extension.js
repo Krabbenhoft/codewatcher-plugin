@@ -28,7 +28,7 @@ function activate(context) {
     onCheckServerConnection();
 	if(vscode.window.activeTextEditor){ handleNewActiveEditor(vscode.window.activeTextEditor) }
 
-	context.subscriptions.push(
+    context.subscriptions.push(
 		login,
 		vscode.window.onDidChangeActiveTextEditor(handleNewActiveEditor),
 		vscode.workspace.onDidChangeTextDocument(handleDocumentChange),
@@ -40,12 +40,50 @@ function activate(context) {
 }
 
 //------------------ROUTES-------------------//
+
+async function onLogin() {
+    const inputConfig = vscode.workspace.getConfiguration('watcher');
+    const userIP = inputConfig.get('ipaddress', 'csci.csuniv.edu:28083');
+
+
+	const username = await vscode.window.showInputBox({
+	  prompt: 'Enter your enrollment',
+	  ignoreFocusOut: true
+	})
+
+	if (!username) {
+	  vscode.window.showWarningMessage('Login canceled (no username provided).')
+	  return
+	}
+  
+	const password = "string"
+
+	const params = {
+		grant_type: 'password',
+		username: username,
+		password: password,
+		scope: '',
+		client_id: 'string',
+		client_secret: 'string'
+	}
+  
+	await axios.post(`http://${userIP}/login`, params, configForm)
+	.then(response => {
+		axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.access_token}`
+        vscode.window.showInformationMessage("Authentication successful!");
+	})
+	.catch(error => {
+		if (error.response.data.detail)vscode.window.showErrorMessage(error.response.data.detail)
+	})
+}
+
+
 async function onCheckServerConnection(){
     const loginData = new URLSearchParams();
     const inputConfig = vscode.workspace.getConfiguration('watcher');
     const userEnrollment = inputConfig.get('enrollment', '');
-    const userPassword = inputConfig.get('password', '');
-    const userIP = inputConfig.get('ipaddress', '');
+    const userPassword = inputConfig.get('password', 'string');
+    const userIP = inputConfig.get('ipaddress', 'csci.csuniv.edu:28083');
     console.log("Enrollment %s, Passoword %s, IP %s" + userEnrollment, userPassword, userIP);
     loginData.append('username', userEnrollment);
     loginData.append('password', userPassword);
@@ -63,7 +101,7 @@ async function onCheckServerConnection(){
 
 async function onWriteLogs(){
     const inputConfig = vscode.workspace.getConfiguration('watcher');
-    const userIP = inputConfig.get('ipaddress', '');
+    const userIP = inputConfig.get('ipaddress', 'csci.csuniv.edu:28083');
     console.log("IP " + userIP);
 
 	if(unsavedLogs){
@@ -86,6 +124,7 @@ async function onWriteLogs(){
         unsavedLogs=false;
 	}
 }
+
 //------------------------------------//
 //-----------------ASYNC HANDLING FUNCTIONS--------------------//
 //ok
@@ -102,7 +141,9 @@ async function handleNewActiveEditor(editor){
     } else {
         docActive=false
         isTimerRunning=false
-    } if(docActive){
+    }
+    
+    if(docActive){
 		await runTimer();
 	}
 }
@@ -122,6 +163,8 @@ async function runTimer(){
     
 }
 
+// This is a test to see if these are being logged.
+
 //-------------------- SYNC HANDLING FUNCTIONS----------------------
 //ok
 async function handleFocusChange(state){
@@ -139,7 +182,7 @@ async function handleFocusChange(state){
 }
 //ok
 function handleDocumentChange(event) {
-	if(isTimerRunning && docActive){
+	if(isTimerRunning){
         idleTime=0;
         for (const change of event.contentChanges){
             activeLine= vscode.window.activeTextEditor.document.lineAt(change.range.start.line).text;
@@ -156,6 +199,7 @@ function handleDocumentChange(event) {
         docText=event.document.getText();
     }
 }
+
 //ok
 async function handlePasteAction() {
 	const editor = vscode.window.activeTextEditor;
@@ -270,7 +314,7 @@ function initializeDocumentVariables(document){
     //isDocUntitled=document.isUntitled;
     docLangId=document.languageId;
     docText=document.getText(); 
-    docActive=isProgrammingLanguageId(docLangId);
+    docActive=true;
     activeLine=document.lineAt(vscode.window.activeTextEditor.selection.active.line).text;
 }
 
